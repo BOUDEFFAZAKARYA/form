@@ -1,21 +1,14 @@
-import Logo from '@/components/Logo'
-import ThemeSwitcher from '@/components/ThemeSwitcher'
-import { UserButton } from '@clerk/nextjs'
+import { SiteHeader } from '@/components/layouts/SiteHeader'
 import React, { ReactNode } from 'react'
+import { currentUser } from "@clerk/nextjs"
 
-function layout( {children}: {children : ReactNode}) {
+async function layout( {children}: {children : ReactNode}) {
+  const user = await currentUser()
+
   return (
-    <div className="flex flex-col max-h-screen min-w-full min-h-screen bg-background">
-    <nav className="flex justify-between items-center border-b border-border h-[60px] px-4 py-2">
-
-      <Logo/>
-      
-      <div className="flex items-center gap-4">
-        <ThemeSwitcher />
-        <UserButton afterSignOutUrl="/signin" />
-      </div>
-    </nav>
-    <main className="flex flex-grow w-full">{children}</main>
+    <div className="relative flex flex-col min-h-screen">
+    <SiteHeader user={user} />
+    <main className="flex-1">{children}</main>
   </div>
   )
 }
