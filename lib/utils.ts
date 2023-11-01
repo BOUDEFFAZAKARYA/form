@@ -43,3 +43,11 @@ export function formatDate(date: Date | string | number) {
     year: "numeric",
   }).format(new Date(date))
 }
+
+export function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/ /g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "-")
+}
