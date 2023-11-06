@@ -1,9 +1,249 @@
-import Image from 'next/image'
+import Link from "next/link"
+import { db } from "@/db"
+import { products, stores } from "@/db/schema"
+import { desc, eq, sql } from "drizzle-orm"
+import { Balancer } from "react-wrap-balancer"
 
-export default function Home() {
+import { siteConfig } from "@/config/site"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
+
+import { StoreCard } from "@/components/cards/store-card"
+import { Icons } from "@/components/icons"
+import { Shell } from "@/components/shells/shell"
+
+export default async function IndexPage() {
+
+/*   const someProducts = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      images: products.images,
+      category: products.category,
+      price: products.price,
+      inventory: products.inventory,
+      stripeAccountId: stores.stripeAccountId,
+    })
+    .from(products)
+    .limit(8)
+    .leftJoin(stores, eq(products.storeId, stores.id))
+    .groupBy(products.id)
+    .orderBy(desc(stores.stripeAccountId), desc(products.createdAt))
+
+  const someStores = await db
+    .select({
+      id: stores.id,
+      name: stores.name,
+      description: stores.description,
+      stripeAccountId: stores.stripeAccountId,
+    })
+    .from(stores)
+    .limit(4)
+    .leftJoin(products, eq(products.storeId, stores.id))
+    .groupBy(stores.id)
+    .orderBy(desc(stores.stripeAccountId), desc(sql<number>`count(*)`)) */
+
+  async function getGithubStars(): Promise<number | null> {
+    try {
+      const response = await fetch(
+        "https://api.github.com/repos/sadmann7/skateshop",
+        {
+          headers: {
+            Accept: "application/vnd.github+json",
+          },
+          next: {
+            revalidate: 60,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        return null
+      }
+
+      const data = (await response.json()) as { stargazers_count: number }
+
+      return data.stargazers_count
+    } catch (err) {
+      console.error(err)
+      return null
+    }
+  }
+
+  const githubStars = await getGithubStars()
+/* 
+  const randomProductCategory =
+    productCategories[Math.floor(Math.random() * productCategories.length)] */
+
   return (
-   <div > 0 hello 0</div>
+    <Shell className="max-w-6xl pt-0 md:pt-0">
+      <section
+        id="hero"
+        aria-labelledby="hero-heading"
+        className="mx-auto flex w-full max-w-[64rem] flex-col items-center justify-center gap-4 py-12 text-center md:pt-32"
+      >
+        {githubStars ? (
+          <Link href={siteConfig.links.github} target="_blank" rel="noreferrer">
+            <Badge
+              aria-hidden="true"
+              className="rounded-md px-3.5 py-1.5"
+              variant="secondary"
+            >
+              <Icons.gitHub className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
+              0 stars on GitHub
+            </Badge>
+            <span className="sr-only">GitHub</span>
+          </Link>
+        ) : null}
+        <Balancer
+          as="h1"
+          className="text-3xl font-heading sm:text-5xl md:text-6xl lg:text-7xl"
+        >
+          {siteConfig.description}
+        </Balancer>
+        <Balancer className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+          Buy and sell skateboarding gears from independent brands and stores
+          around the world 
+        </Balancer>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <Link href="/products" className={cn(buttonVariants())}>
+            Buy now
+            <span className="sr-only">Buy now</span>
+          </Link>
+          <Link
+            href="/dashboard/stores"
+            className={cn(
+              buttonVariants({
+                variant: "outline",
+              })
+            )}
+          >
+            Sell now
+            <span className="sr-only">Sell now</span>
+          </Link>
+        </div>
+      </section>
+      <section
+        id="categories"
+        aria-labelledby="categories-heading"
+        className="py-8 space-y-6 md:pt-10 lg:pt-24"
+      >
+        <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+          <h2 className="text-3xl font-bold leading-[1.1] sm:text-3xl md:text-5xl">
+            Categories
+          </h2>
+          <Balancer className="max-w-[46rem] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+            Find the best skateboarding gears from stores around the world
+          </Balancer>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {/*   {productCategories.map((category) => (
+            <CategoryCard key={category.title} category={category} />
+          ))} */}
+        </div>
+      </section>
+      <section
+        id="featured-products"
+        aria-labelledby="featured-products-heading"
+        className="py-8 space-y-6 overflow-hidden md:pt-12 lg:pt-24"
+      >
+        <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 overflow-visible text-center">
+          <h2 className="font-heading text-3xl font-bold leading-[1.1] sm:text-3xl md:text-5xl">
+            Featured products
+          </h2>
+          <Balancer className="max-w-[46rem] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+            Explore products from around the world
+          </Balancer>
+        </div>
+        <div className="flex flex-col space-y-10">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {/*   {someProducts.length > 0 ? (
+              someProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : ( */}
+              <div className="flex flex-col items-center justify-center h-full pt-10 space-y-1">
+                <Icons.product
+                  className="w-16 h-16 mb-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <div className="text-xl font-medium text-muted-foreground">
+                  No products found
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Please try again later
+                </div>
+              </div>
+          </div>
+          <Link
+            href="/products"
+            className={cn(
+              buttonVariants({
+                className: "mx-auto",
+              })
+            )}
+          >
+            View all products
+            <span className="sr-only">View all products</span>
+          </Link>
+        </div>
+      </section>
+      <section
+        id="featured-stores"
+        aria-labelledby="featured-stores-heading"
+        className="flex flex-col py-8 space-y-6 md:pt-12 lg:pt-24"
+      >
+        <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+          <h2 className="text-3xl font-bold leading-[1.1] sm:text-3xl md:text-5xl">
+            Featured stores
+          </h2>
+          <Balancer className="max-w-[46rem] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+            Explore stores from around the world
+          </Balancer>
+        </div>
+        <div className="flex flex-col space-y-10">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+           {/*  {someStores.map((store) => (
+              <StoreCard
+                key={store.id}
+                store={store}
+                href={`/products?store_ids=${store.id}`}
+              />
+            ))} */}
+          </div>
+          <Link
+            href="/stores"
+            className={cn(
+              buttonVariants({
+                className: "mx-auto",
+              })
+            )}
+          >
+            View all stores
+            <span className="sr-only">View all stores</span>
+          </Link>
+        </div>
+      </section>
+      <section
+        id="random-subcategories"
+        aria-labelledby="random-subcategories-heading"
+        className="flex flex-wrap items-center justify-center gap-4 py-6"
+      >
+    {/*     {randomProductCategory?.subcategories.map((subcategory) => (
+          <Link
+            key={subcategory.slug}
+            href={`/categories/${randomProductCategory?.title}/${String(
+              subcategory.slug
+            )}`}
+          >
+            <Badge variant="secondary" className="px-3 py-1 rounded">
+              {subcategory.title}
+            </Badge>
+            <span className="sr-only">{subcategory.title}</span>
+          </Link>
+        ))} */}
+      </section>
+    </Shell>
   )
 }
-
- 

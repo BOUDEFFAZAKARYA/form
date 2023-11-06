@@ -51,3 +51,38 @@ export function slugify(str: string) {
     .replace(/[^\w-]+/g, "")
     .replace(/--+/g, "-")
 }
+
+export function toSentenceCase(str: string) {
+  return str
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase())
+}
+
+export function formatPrice(
+  price: number | string,
+  options: {
+    currency?: "USD" | "EUR" | "GBP" | "BDT"
+    notation?: Intl.NumberFormatOptions["notation"]
+  } = {}
+) {
+  const { currency = "USD", notation = "compact" } = options
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    notation,
+  }).format(Number(price))
+}
+
+export function catchError(err: unknown) {
+  if (err instanceof z.ZodError) {
+    const errors = err.issues.map((issue) => {
+      return issue.message
+    })
+    return toast(errors.join("\n"))
+  } else if (err instanceof Error) {
+    return toast(err.message)
+  } else {
+    return toast("Something went wrong, please try again later.")
+  }
+}

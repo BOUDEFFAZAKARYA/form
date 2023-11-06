@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { LoadingButton } from "@/components/loading-button"
 
 
 export const metadata: Metadata = {
@@ -226,7 +227,7 @@ export default async function UpdateStorePage({
               />
             </div>
             <div className="flex flex-col gap-2 xs:flex-row">
-            {/*   <LoadingButton>
+            <LoadingButton>
                 Update store
                 <span className="sr-only">Update store</span>
               </LoadingButton>
@@ -237,7 +238,7 @@ export default async function UpdateStorePage({
               >
                 Delete store
                 <span className="sr-only">Delete store</span>
-              </LoadingButton> */}
+              </LoadingButton>
             </div>
           </form>
         </CardContent>
